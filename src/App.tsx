@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { RequestsList } from './components/RequestsList';
+import { OrdersList } from './components/OrdersList';
 import { RequestModal } from './components/RequestModal';
 import { useRestorationRequests } from './hooks/useRestorationRequests';
 import { RestorationRequest } from './lib/supabase';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'orders'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<RestorationRequest | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,7 +36,7 @@ function App() {
     return success;
   };
 
-  const handleTabChange = (tab: 'dashboard' | 'requests') => {
+  const handleTabChange = (tab: 'dashboard' | 'requests' | 'orders') => {
     console.log('Tab change requested:', tab);
     setActiveTab(tab);
   };
@@ -93,6 +94,13 @@ function App() {
           {activeTab === 'dashboard' && <Dashboard requests={requests} />}
           {activeTab === 'requests' && (
             <RequestsList
+              requests={requests}
+              onViewRequest={handleViewRequest}
+              onUpdateStatus={updateRequestStatus}
+            />
+          )}
+          {activeTab === 'orders' && (
+            <OrdersList
               requests={requests}
               onViewRequest={handleViewRequest}
               onUpdateStatus={updateRequestStatus}

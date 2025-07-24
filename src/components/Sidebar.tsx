@@ -3,12 +3,13 @@ import {
   LayoutDashboard, 
   FileImage, 
   Menu,
-  X
+  X,
+  ShoppingCart
 } from 'lucide-react';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'requests';
-  onTabChange: (tab: 'dashboard' | 'requests') => void;
+  activeTab: 'dashboard' | 'requests' | 'orders';
+  onTabChange: (tab: 'dashboard' | 'requests' | 'orders') => void;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -24,10 +25,15 @@ export function Sidebar({ activeTab, onTabChange, isOpen, onToggle }: SidebarPro
       id: 'requests' as const,
       name: 'Pedidos',
       icon: FileImage
+    },
+    {
+      id: 'orders' as const,
+      name: 'Todos os Pedidos',
+      icon: ShoppingCart
     }
   ];
 
-  const handleMenuClick = (itemId: 'dashboard' | 'requests') => {
+  const handleMenuClick = (itemId: 'dashboard' | 'requests' | 'orders') => {
     console.log('Menu item clicked:', itemId);
     onTabChange(itemId);
     if (window.innerWidth < 1024) {
