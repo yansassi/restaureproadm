@@ -133,6 +133,75 @@ export function useRestorationRequests() {
     }
   };
 
+  const deleteRequest = async (id: string) => {
+    try {
+      console.log('Iniciando exclusão do pedido:', id);
+      
+      // Primeiro, buscar as imagens associadas ao pedido
+      const { data: requestData, error: fetchError } = await supabase
+        .from('customers')
+        .select('image_url')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) {
+        console.error('Erro ao buscar dados do pedido:', fetchError);
+        throw fetchError;
+      }
+      
+      // Excluir imagens do Storage se existirem
+      if (requestData?.image_url && requestData.image_url.length > 0) {
+        console.log('Excluindo imagens do Storage:', requestData.image_url);
+        
+        const imagePaths = requestData.image_url.map(url => {
+          // Extrair o caminho do arquivo da URL
+          // Assumindo que as URLs seguem o padrão: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+          const urlParts = url.split('/');
+          const bucketIndex = urlParts.findIndex(part => part === 'public') + 1;
+          if (bucketIndex > 0 && bucketIndex < urlParts.length) {
+            return urlParts.slice(bucketIndex + 1).join('/'); // Pular o nome do bucket
+          }
+          return null;
+        }).filter(path => path !== null);
+        
+        if (imagePaths.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from('images') // Nome do bucket - ajuste conforme necessário
+            .remove(imagePaths);
+          
+          if (storageError) {
+            console.warn('Erro ao excluir imagens do Storage (continuando com exclusão do registro):', storageError);
+            // Não interromper o processo se houver erro no storage
+          } else {
+            console.log('Imagens excluídas do Storage com sucesso');
+          }
+        }
+      }
+      
+      // Excluir o registro do banco de dados
+      const { error: deleteError } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', id);
+      
+      if (deleteError) {
+        console.error('Erro ao excluir registro do banco:', deleteError);
+        throw deleteError;
+      }
+      
+      console.log('Registro excluído do banco com sucesso');
+      
+      // Atualizar o estado local removendo o pedido
+      setRequests(prev => prev.filter(req => req.id !== id));
+      
+      return true;
+    } catch (err) {
+      console.error('Error deleting request:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir pedido';
+      setError(errorMessage);
+      return false;
+    }
+  };
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -143,6 +212,7 @@ export function useRestorationRequests() {
     error,
     refetch: fetchRequests,
     updateRequestStatus,
-    updateRestoredImage
+    updateRestoredImage,
+    deleteRequest
   };
 }

@@ -14,16 +14,18 @@ import {
   Mail,
   Phone,
   DollarSign,
-  Package
+  Package,
+  Trash2
 } from 'lucide-react';
 
 interface OrdersListProps {
   requests: RestorationRequest[];
   onViewRequest: (request: RestorationRequest) => void;
   onUpdateStatus: (id: string, status: RestorationRequest['status'], notes?: string) => Promise<boolean>;
+  onDeleteRequest: (id: string) => Promise<boolean>;
 }
 
-export function OrdersList({ requests, onViewRequest, onUpdateStatus }: OrdersListProps) {
+export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRequest }: OrdersListProps) {
   const [filter, setFilter] = useState<'all' | RestorationRequest['status']>('all');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date');
@@ -76,6 +78,19 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus }: OrdersLi
     }
   };
 
+  const handleDeleteRequest = async (request: RestorationRequest) => {
+    const confirmMessage = `Tem certeza que deseja excluir o pedido de ${request.customer_name}?\n\nEsta ação não pode ser desfeita e irá:\n• Remover o registro do banco de dados\n• Excluir todas as imagens associadas\n• Remover permanentemente todos os dados`;
+    
+    if (window.confirm(confirmMessage)) {
+      const success = await onDeleteRequest(request.id);
+      if (success) {
+        // Mostrar mensagem de sucesso (opcional)
+        alert('Pedido excluído com sucesso!');
+      } else {
+        alert('Erro ao excluir pedido. Tente novamente.');
+      }
+    }
+  };
   const getStatusIcon = (status: RestorationRequest['status']) => {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4" />;
@@ -189,6 +204,13 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus }: OrdersLi
                     {new Date(request.created_at).toLocaleDateString('pt-BR')}
                   </div>
                 </div>
+                    <button
+                      onClick={() => handleDeleteRequest(request)}
+                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Excluir pedido"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
               </div>
 
               {/* Imagem Preview */}

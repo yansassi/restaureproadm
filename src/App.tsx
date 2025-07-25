@@ -14,7 +14,7 @@ function App() {
   const [selectedRequest, setSelectedRequest] = useState<RestorationRequest | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { requests, loading, error, refetch, updateRequestStatus } = useRestorationRequests();
+  const { requests, loading, error, refetch, updateRequestStatus, deleteRequest } = useRestorationRequests();
 
   console.log('App rendered');
   console.log('- activeTab:', activeTab);
@@ -41,6 +41,13 @@ function App() {
     return success;
   };
 
+  const handleDeleteRequest = async (id: string) => {
+    const success = await deleteRequest(id);
+    if (success) {
+      handleCloseModal();
+    }
+    return success;
+  };
   const handleTabChange = (tab: 'dashboard' | 'requests' | 'orders') => {
     console.log('Tab change requested:', tab);
     setActiveTab(tab);
@@ -130,6 +137,7 @@ function App() {
               requests={requests}
               onViewRequest={handleViewRequest}
               onUpdateStatus={updateRequestStatus}
+              onDeleteRequest={handleDeleteRequest}
             />
           )}
           {activeTab === 'orders' && (
@@ -137,6 +145,7 @@ function App() {
               requests={requests}
               onViewRequest={handleViewRequest}
               onUpdateStatus={updateRequestStatus}
+              onDeleteRequest={handleDeleteRequest}
             />
           )}
         </div>
@@ -147,6 +156,7 @@ function App() {
         isOpen={modalOpen}
         onClose={handleCloseModal}
         onUpdateStatus={handleUpdateStatus}
+        onDeleteRequest={handleDeleteRequest}
       />
     </div>
   );
