@@ -69,7 +69,16 @@ Restaurando Memórias com Amor`);
   // Função para criar link do WhatsApp
   const createWhatsAppLink = (phone: string, customerName: string) => {
     const formattedPhone = formatPhoneForWhatsApp(phone);
-    const message = encodeURIComponent(`Olá ${customerName}! Entrando em contato sobre seu pedido de restauração de imagem.`);
+    const message = encodeURIComponent(`Oi ${customerName}! Tudo certo? 😊
+
+Sua foto restaurada ficou pronta!
+Foi um prazer cuidar dessa lembrança tão especial. 💖
+
+📎 Estou te enviando a imagem restaurada aqui mesmo. Dá uma olhadinha e me diz o que achou!
+
+Obrigado por confiar no meu trabalho! 🙏
+Um abraço,
+RestauraPRO!`);
     return `https://wa.me/${formattedPhone}?text=${message}`;
   };
   const handleUpdateStatus = async () => {
