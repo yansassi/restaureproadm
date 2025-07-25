@@ -7,7 +7,8 @@ import {
   PlayCircle,
   TrendingUp,
   Users,
-  Image
+  Image,
+  DollarSign
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -25,6 +26,16 @@ export function Dashboard({ requests }: DashboardProps) {
 
   const completionRate = stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0';
 
+  // Calcular receita total
+  const totalRevenue = requests.reduce((sum, request) => {
+    return sum + (request.plan_price ? Number(request.plan_price) : 0);
+  }, 0);
+
+  const completedRevenue = requests
+    .filter(r => r.status === 'completed')
+    .reduce((sum, request) => {
+      return sum + (request.plan_price ? Number(request.plan_price) : 0);
+    }, 0);
   const statCards = [
     {
       title: 'Total de Pedidos',
@@ -34,18 +45,18 @@ export function Dashboard({ requests }: DashboardProps) {
       textColor: 'text-blue-600'
     },
     {
+      title: 'Receita Total',
+      value: `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`,
+      icon: DollarSign,
+      color: 'bg-green-500',
+      textColor: 'text-green-600'
+    },
+    {
       title: 'Pendentes',
       value: stats.pending,
       icon: Clock,
       color: 'bg-yellow-500',
       textColor: 'text-yellow-600'
-    },
-    {
-      title: 'Em Processamento',
-      value: stats.processing,
-      icon: PlayCircle,
-      color: 'bg-purple-500',
-      textColor: 'text-purple-600'
     },
     {
       title: 'Concluídos',
@@ -97,9 +108,17 @@ export function Dashboard({ requests }: DashboardProps) {
                     <div>
                       <p className="font-medium text-gray-900">{request.customer_name}</p>
                       <p className="text-sm text-gray-500">{request.customer_email}</p>
+                      {request.plan_name && (
+                        <p className="text-xs text-gray-400">{request.plan_name}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
+                    {request.plan_price && (
+                      <span className="text-sm font-semibold text-green-600">
+                        R$ {Number(request.plan_price).toFixed(2).replace('.', ',')}
+                      </span>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       request.status === 'completed' ? 'bg-green-100 text-green-800' :
                       request.status === 'processing' ? 'bg-purple-100 text-purple-800' :

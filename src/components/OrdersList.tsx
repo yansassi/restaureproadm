@@ -12,7 +12,9 @@ import {
   Calendar,
   User,
   Mail,
-  Phone
+  Phone,
+  DollarSign,
+  Package
 } from 'lucide-react';
 
 interface OrdersListProps {
@@ -217,6 +219,26 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus }: OrdersLi
                   <div className="flex items-center space-x-2">
                     <Phone className="h-4 w-4 text-gray-400" />
                     <span className="text-sm text-gray-600">{request.customer_phone}</span>
+                  </div>
+                )}
+
+                {/* Informações do Plano */}
+                {(request.plan_name || request.plan_price) && (
+                  <div className="border-t border-gray-100 pt-3 mt-3">
+                    {request.plan_name && (
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Package className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-700">{request.plan_name}</span>
+                      </div>
+                    )}
+                    {request.plan_price && (
+                      <div className="flex items-center space-x-2">
+                        <DollarSign className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-semibold text-green-600">
+                          R$ {Number(request.plan_price).toFixed(2).replace('.', ',')}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
 

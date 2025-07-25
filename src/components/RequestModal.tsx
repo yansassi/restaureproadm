@@ -8,7 +8,10 @@ import {
   Phone, 
   Calendar,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
+  DollarSign,
+  Package,
+  Hash
 } from 'lucide-react';
 
 interface RequestModalProps {
@@ -128,8 +131,55 @@ export function RequestModal({ request, isOpen, onClose, onUpdateStatus }: Reque
                   </p>
                 </div>
               </div>
+              {request.order_number && (
+                <div className="flex items-center space-x-3">
+                  <Hash className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm text-gray-500">Número do Pedido</p>
+                    <p className="font-medium text-gray-900">{request.order_number}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Informações do Plano */}
+          {(request.plan_name || request.plan_price || request.plan_images) && (
+            <div className="bg-green-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Detalhes do Plano</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {request.plan_name && (
+                  <div className="flex items-center space-x-3">
+                    <Package className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-500">Plano</p>
+                      <p className="font-medium text-gray-900">{request.plan_name}</p>
+                    </div>
+                  </div>
+                )}
+                {request.plan_price && (
+                  <div className="flex items-center space-x-3">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-500">Valor</p>
+                      <p className="font-semibold text-green-700 text-lg">
+                        R$ {Number(request.plan_price).toFixed(2).replace('.', ',')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {request.plan_images && (
+                  <div className="flex items-center space-x-3">
+                    <ImageIcon className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-500">Imagens Incluídas</p>
+                      <p className="font-medium text-gray-900">{request.plan_images}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Status Atual */}
           <div className="flex items-center justify-between">
