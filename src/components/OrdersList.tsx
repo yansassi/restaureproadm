@@ -15,7 +15,8 @@ import {
   Phone,
   DollarSign,
   Package,
-  Trash2
+  Trash2,
+  Truck
 } from 'lucide-react';
 
 interface OrdersListProps {
@@ -31,6 +32,25 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRe
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  // Função para formatar número de telefone para WhatsApp
+  const formatPhoneForWhatsApp = (phone: string) => {
+    // Remove todos os caracteres não numéricos
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // Se não começar com 55 (código do Brasil), adiciona
+    if (!cleanPhone.startsWith('55')) {
+      return `55${cleanPhone}`;
+    }
+    
+    return cleanPhone;
+  };
+
+  // Função para criar link do WhatsApp
+  const createWhatsAppLink = (phone: string, customerName: string) => {
+    const formattedPhone = formatPhoneForWhatsApp(phone);
+    const message = encodeURIComponent(`Olá ${customerName}! Entrando em contato sobre seu pedido de restauração de imagem.`);
+    return `https://wa.me/${formattedPhone}?text=${message}`;
+  };
   const filteredRequests = requests.filter(request => {
     const matchesFilter = filter === 'all' || request.status === filter;
     const matchesSearch = 
@@ -240,7 +260,15 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRe
                 {request.customer_phone && (
                   <div className="flex items-center space-x-2">
                     <Phone className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{request.customer_phone}</span>
+                    <a
+                      href={createWhatsAppLink(request.customer_phone, request.customer_name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-green-600 hover:text-green-700 hover:underline transition-colors"
+                      title="Abrir conversa no WhatsApp"
+                    >
+                      {request.customer_phone}
+                    </a>
                   </div>
                 )}
 
@@ -267,6 +295,30 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRe
                 {request.notes && (
                   <div className="bg-blue-50 p-2 rounded text-xs text-blue-800 border border-blue-200">
                     <p className="line-clamp-2">{request.notes}</p>
+                  </div>
+                )}
+
+                {/* Método de Entrega */}
+                {request.delivery_method && request.delivery_method.length > 0 && (
+                  <div className="border-t border-gray-100 pt-3 mt-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Truck className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-700">Entrega:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {request.delivery_method.map((method, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                        >
+                          {method === 'email' ? 'E-mail' :
+                           method === 'whatsapp' ? 'WhatsApp' :
+                           method === 'download' ? 'Download' :
+                           method === 'physical' ? 'Físico' :
+                           method}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

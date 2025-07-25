@@ -27,6 +27,8 @@ export interface RestorationRequest {
   plan_name?: string;
   plan_price?: number;
   plan_images?: number;
+  payment_fee: number;
+  real_profit: number;
   delivery_method: string[];
   order_number: string;
   // Campos para compatibilidade com o componente

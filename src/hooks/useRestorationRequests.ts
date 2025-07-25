@@ -38,6 +38,10 @@ export function useRestorationRequests() {
         customer_phone: customer.phone,
         original_image_url: customer.image_url?.[0] || '',
         restored_image_url: customer.image_url?.[1] || null,
+        delivery_method: customer.delivery_method || [],
+        // Calcular taxa de pagamento e lucro real
+        payment_fee: 2.49,
+        real_profit: customer.plan_price ? Number(customer.plan_price) - 2.49 : -2.49,
         status: (customer.payment_status === 'completed' ? 'completed' : 
                 customer.payment_status === 'processing' ? 'processing' : 
                 customer.payment_status === 'cancelled' ? 'cancelled' : 'pending') as RestorationRequest['status'],
