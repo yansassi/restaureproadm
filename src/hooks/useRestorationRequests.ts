@@ -9,15 +9,43 @@ export function useRestorationRequests() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
+      setError(null);
+      console.log('Fetching requests from Supabase...');
+      
       const { data, error } = await supabase
         .from('customers')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setRequests(data || []);
+      console.log('Supabase response:', { data, error });
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      // Mapear os dados da tabela customers para o formato RestorationRequest
+      const requestsData = (data || []).map(customer => ({
+        ...customer,
+        // Mapear campos para compatibilidade
+        customer_name: customer.name,
+        customer_email: customer.email,
+        customer_phone: customer.phone,
+        original_image_url: customer.image_url?.[0] || '',
+        restored_image_url: customer.image_url?.[1] || null,
+        status: customer.payment_status === 'completed' ? 'completed' : 
+                customer.payment_status === 'processing' ? 'processing' : 'pending',
+        notes: null,
+        updated_at: customer.created_at
+      }));
+      
+      console.log('Setting requests data:', requestsData);
+      setRequests(requestsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar pedidos');
+      console.error('Error in fetchRequests:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar pedidos';
+      setError(errorMessage);
+      setRequests([]); // Garantir que requests seja um array vazio em caso de erro
     } finally {
       setLoading(false);
     }

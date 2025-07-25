@@ -16,7 +16,12 @@ function App() {
 
   const { requests, loading, error, refetch, updateRequestStatus } = useRestorationRequests();
 
-  console.log('App rendered - activeTab:', activeTab, 'requests count:', requests.length, 'loading:', loading, 'error:', error);
+  console.log('App rendered');
+  console.log('- activeTab:', activeTab);
+  console.log('- requests:', requests);
+  console.log('- requests count:', requests?.length || 0);
+  console.log('- loading:', loading);
+  console.log('- error:', error);
 
   const handleViewRequest = (request: RestorationRequest) => {
     setSelectedRequest(request);
@@ -46,7 +51,7 @@ function App() {
         <div className="text-center">
           <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-lg font-medium text-gray-900">Carregando painel administrativo...</p>
-          <p className="text-sm text-gray-500">Conectando com o Supabase</p>
+          <p className="text-sm text-gray-500">Conectando com o Supabase e carregando dados...</p>
         </div>
       </div>
     );
@@ -69,9 +74,10 @@ function App() {
           <div className="mt-6 p-4 bg-yellow-50 rounded-lg text-left">
             <h3 className="text-sm font-medium text-yellow-800 mb-2">Possíveis soluções:</h3>
             <ul className="text-sm text-yellow-700 space-y-1">
-              <li>• Verifique se a tabela 'restoration_requests' existe no Supabase</li>
+              <li>• Verifique se a tabela 'customers' existe no Supabase</li>
               <li>• Confirme se as credenciais do Supabase estão corretas</li>
               <li>• Verifique as políticas RLS da tabela</li>
+              <li>• Confirme se há dados na tabela 'customers'</li>
             </ul>
           </div>
         </div>
