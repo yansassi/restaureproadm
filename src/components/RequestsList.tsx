@@ -27,12 +27,7 @@ export function RequestsList({ requests, onViewRequest, onUpdateStatus }: Reques
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Filtrar apenas pedidos pendentes e em processamento
-  const activeRequests = requests.filter(request => 
-    request.status === 'pending' || request.status === 'processing'
-  );
-
-  const filteredRequests = activeRequests.filter(request => {
+  const filteredRequests = requests.filter(request => {
     const matchesFilter = filter === 'all' || request.status === filter;
     const matchesSearch = 
       request.customer_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,11 +105,11 @@ export function RequestsList({ requests, onViewRequest, onUpdateStatus }: Reques
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Pedidos Ativos</h1>
-          <p className="text-gray-600 mt-1">Pedidos pendentes e em processamento</p>
+          <h1 className="text-3xl font-bold text-gray-900">Pedidos</h1>
+          <p className="text-gray-600 mt-1">Todos os pedidos de restauração</p>
         </div>
         <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
-          {sortedRequests.length} de {activeRequests.length} pedidos ativos
+          {sortedRequests.length} de {requests.length} pedidos
         </div>
       </div>
 
@@ -147,6 +142,8 @@ export function RequestsList({ requests, onViewRequest, onUpdateStatus }: Reques
                 <option value="all">Todos os Status</option>
                 <option value="pending">Pendentes</option>
                 <option value="processing">Processando</option>
+                <option value="completed">Concluídos</option>
+                <option value="cancelled">Cancelados</option>
               </select>
             </div>
           </div>
@@ -273,7 +270,7 @@ export function RequestsList({ requests, onViewRequest, onUpdateStatus }: Reques
             <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">
               <div className="text-gray-500">
                 <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">Nenhum pedido ativo encontrado</p>
+                <p className="text-lg font-medium">Nenhum pedido encontrado</p>
                 <p className="text-sm">Tente ajustar os filtros de busca</p>
               </div>
             </div>
