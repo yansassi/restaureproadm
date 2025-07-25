@@ -32,6 +32,28 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRe
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  // Função para criar link mailto
+  const createMailtoLink = (email: string, customerName: string) => {
+    const subject = encodeURIComponent('RESTAURAÇÃO DA SUA FOTO');
+    const body = encodeURIComponent(`Olá, ${customerName}!
+
+É com muita alegria que entregamos a você a versão restaurada da sua foto.
+Trabalhamos com todo o cuidado para preservar as memórias e detalhes que fazem essa imagem tão especial.
+
+🧡 Confira a foto restaurada em anexo.
+Caso tenha qualquer ajuste ou dúvida, fique à vontade para responder este e-mail. Estamos aqui para garantir que você fique 100% satisfeito(a)!
+
+Muito obrigado por confiar no nosso trabalho.
+Manter viva a sua história é o que nos move.
+
+Atenciosamente,
+RestauraPRO!
+
+Restaurando Memórias com Amor`);
+    
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
   // Função para formatar número de telefone para WhatsApp
   const formatPhoneForWhatsApp = (phone: string) => {
     // Remove todos os caracteres não numéricos
@@ -254,7 +276,13 @@ export function OrdersList({ requests, onViewRequest, onUpdateStatus, onDeleteRe
                 
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600 truncate">{request.customer_email}</span>
+                  <a
+                    href={createMailtoLink(request.customer_email, request.customer_name)}
+                    className="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors truncate"
+                    title="Enviar email para o cliente"
+                  >
+                    {request.customer_email}
+                  </a>
                 </div>
 
                 {request.customer_phone && (

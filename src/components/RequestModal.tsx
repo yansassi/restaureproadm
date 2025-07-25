@@ -29,6 +29,28 @@ export function RequestModal({ request, isOpen, onClose, onUpdateStatus, onDelet
   const [notes, setNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Função para criar link mailto
+  const createMailtoLink = (email: string, customerName: string) => {
+    const subject = encodeURIComponent('RESTAURAÇÃO DA SUA FOTO');
+    const body = encodeURIComponent(`Olá, ${customerName}!
+
+É com muita alegria que entregamos a você a versão restaurada da sua foto.
+Trabalhamos com todo o cuidado para preservar as memórias e detalhes que fazem essa imagem tão especial.
+
+🧡 Confira a foto restaurada em anexo.
+Caso tenha qualquer ajuste ou dúvida, fique à vontade para responder este e-mail. Estamos aqui para garantir que você fique 100% satisfeito(a)!
+
+Muito obrigado por confiar no nosso trabalho.
+Manter viva a sua história é o que nos move.
+
+Atenciosamente,
+RestauraPRO!
+
+Restaurando Memórias com Amor`);
+    
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
   if (!isOpen || !request) return null;
 
   // Função para formatar número de telefone para WhatsApp
@@ -148,7 +170,13 @@ export function RequestModal({ request, isOpen, onClose, onUpdateStatus, onDelet
                 <Mail className="h-5 w-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-900">{request.customer_email}</p>
+                  <a
+                    href={createMailtoLink(request.customer_email, request.customer_name)}
+                    className="font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                    title="Enviar email para o cliente"
+                  >
+                    {request.customer_email}
+                  </a>
                 </div>
               </div>
               {request.customer_phone && (
