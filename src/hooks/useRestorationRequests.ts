@@ -12,6 +12,11 @@ export function useRestorationRequests() {
       setError(null);
       console.log('Fetching requests from Supabase...');
       
+      // Verificar se o Supabase está configurado
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error('Variáveis de ambiente do Supabase não configuradas. Verifique VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env');
+      }
+      
       const { data, error } = await supabase
         .from('customers')
         .select('*')
@@ -33,8 +38,9 @@ export function useRestorationRequests() {
         customer_phone: customer.phone,
         original_image_url: customer.image_url?.[0] || '',
         restored_image_url: customer.image_url?.[1] || null,
-        status: customer.payment_status === 'completed' ? 'completed' : 
-                customer.payment_status === 'processing' ? 'processing' : 'pending',
+        status: (customer.payment_status === 'completed' ? 'completed' : 
+                customer.payment_status === 'processing' ? 'processing' : 
+                customer.payment_status === 'cancelled' ? 'cancelled' : 'pending') as RestorationRequest['status'],
         notes: null,
         updated_at: customer.created_at
       }));
@@ -53,12 +59,16 @@ export function useRestorationRequests() {
 
   const updateRequestStatus = async (id: string, status: RestorationRequest['status'], notes?: string) => {
     try {
+      // Mapear o status para o campo correto no banco de dados
+      const paymentStatus = status === 'pending' ? 'pending' :
+                           status === 'processing' ? 'processing' :
+                           status === 'completed' ? 'completed' :
+                           status === 'cancelled' ? 'cancelled' : 'pending';
+      
       const { error } = await supabase
         .from('customers')
         .update({ 
-          status, 
-          notes: notes || null,
-          updated_at: new Date().toISOString()
+          payment_status: paymentStatus
         })
         .eq('id', id);
 
@@ -68,13 +78,14 @@ export function useRestorationRequests() {
       setRequests(prev => 
         prev.map(req => 
           req.id === id 
-            ? { ...req, status, notes: notes || req.notes, updated_at: new Date().toISOString() }
+            ? { ...req, status, payment_status: paymentStatus, notes: notes || req.notes, updated_at: new Date().toISOString() }
             : req
         )
       );
       
       return true;
     } catch (err) {
+      console.error('Error updating request status:', err);
       setError(err instanceof Error ? err.message : 'Erro ao atualizar status');
       return false;
     }
@@ -82,11 +93,25 @@ export function useRestorationRequests() {
 
   const updateRestoredImage = async (id: string, restoredImageUrl: string) => {
     try {
+      // Primeiro, buscar as imagens atuais
+      const { data: currentData, error: fetchError } = await supabase
+        .from('customers')
+        .select('image_url')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Atualizar o array de imagens
+      const currentImages = currentData?.image_url || [];
+      const updatedImages = currentImages.length > 0 
+        ? [currentImages[0], restoredImageUrl] 
+        : [restoredImageUrl];
+      
       const { error } = await supabase
         .from('customers')
         .update({ 
-          restored_image_url: restoredImageUrl,
-          updated_at: new Date().toISOString()
+          image_url: updatedImages
         })
         .eq('id', id);
 
@@ -95,13 +120,14 @@ export function useRestorationRequests() {
       setRequests(prev => 
         prev.map(req => 
           req.id === id 
-            ? { ...req, restored_image_url: restoredImageUrl, updated_at: new Date().toISOString() }
+            ? { ...req, restored_image_url: restoredImageUrl, image_url: updatedImages, updated_at: new Date().toISOString() }
             : req
         )
       );
       
       return true;
     } catch (err) {
+      console.error('Error updating restored image:', err);
       setError(err instanceof Error ? err.message : 'Erro ao atualizar imagem restaurada');
       return false;
     }

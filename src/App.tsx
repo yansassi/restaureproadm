@@ -45,6 +45,33 @@ function App() {
     console.log('Tab change requested:', tab);
     setActiveTab(tab);
   };
+  
+  // Verificar se as variáveis de ambiente estão definidas
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Configuração do Supabase Necessária</h2>
+          <p className="text-gray-600 mb-4">
+            As variáveis de ambiente do Supabase não foram encontradas.
+          </p>
+          <div className="mt-6 p-4 bg-yellow-50 rounded-lg text-left">
+            <h3 className="text-sm font-medium text-yellow-800 mb-2">Para resolver:</h3>
+            <ul className="text-sm text-yellow-700 space-y-1">
+              <li>• Clique no botão "Connect to Supabase" no canto superior direito</li>
+              <li>• Ou crie um arquivo .env na raiz do projeto com:</li>
+              <li className="font-mono text-xs bg-yellow-100 p-2 rounded mt-2">
+                VITE_SUPABASE_URL="sua-url-do-supabase"<br/>
+                VITE_SUPABASE_ANON_KEY="sua-chave-anonima"
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
